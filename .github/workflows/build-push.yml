@@ -1,0 +1,54 @@
+name: Create and Publish Base Image
+
+# Trigger: Jalan ketika ada push ke branch main atau ada tag baru (v1.0.0)
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  # Memungkinkan trigger manual dari tab Actions
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  # Ganti dengan nama image yang Anda inginkan (misal: username/go-air-dev)
+  # ${{ github.repository }} otomatis mengambil format "username/nama-repo"
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          # Pastikan nama file sesuai. Jika Anda menamainya Dockerfile.base, ubah di sini.
+          # Jika namanya standar 'Dockerfile', biarkan default atau hapus baris 'file'.
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

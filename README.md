@@ -166,6 +166,43 @@ if [ "$1" = "shell" ] || [ "$1" = "sh" ]; then
     exit $?
 fi
 
+# 4. Shortcut: Extract SDK for IDE (GoLand/VSCode)
+if [ "$1" = "sdk" ]; then
+    SDK_DIR="$HOME/go-docker-sdk"
+    
+    # Ambil Base Image dari variable atau parse dari Dockerfile jika ada
+    # Fallback ke image default kita jika tidak terdeteksi
+    IMAGE_TO_PULL="ghcr.io/USERNAME/go-air-dev:latest" # GANTI DENGAN IMAGE ANDA
+    
+    # Cek apakah di folder project ada Dockerfile dan gunakan FROM-nya jika mungkin
+    if [ -f "Dockerfile" ]; then
+        DETECTED_IMAGE=$(grep "^FROM" Dockerfile | head -n 1 | awk '{print $2}')
+        if [ ! -z "$DETECTED_IMAGE" ]; then
+            IMAGE_TO_PULL=$DETECTED_IMAGE
+        fi
+    fi
+
+    echo "📦 Menyiapkan SDK untuk IDE dari image: $IMAGE_TO_PULL"
+    
+    # Hapus SDK lama jika ada
+    if [ -d "$SDK_DIR" ]; then
+        echo "🗑️  Menghapus SDK lama..."
+        rm -rf "$SDK_DIR"
+    fi
+
+    echo "⏳ Sedang mengekstrak /usr/local/go dari container..."
+    
+    # Buat container sementara, copy folder go, lalu hapus container
+    CONTAINER_ID=$(docker create $IMAGE_TO_PULL)
+    docker cp $CONTAINER_ID:/usr/local/go $SDK_DIR
+    docker rm $CONTAINER_ID > /dev/null
+
+    echo "✅ SDK berhasil diekstrak ke: $SDK_DIR"
+    echo "ℹ️  Buka GoLand -> Settings -> Go -> GOROOT"
+    echo "ℹ️  Pilih 'Add SDK' -> 'Local' -> Arahkan ke: $SDK_DIR"
+    exit 0
+fi
+
 execute go "$@"
 
 ```

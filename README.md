@@ -69,13 +69,11 @@ EOF
     cat <<EOF > docker-compose.yml
 services:
   app:
-    image: (Change the real image)
+    image: ghcr.io/dowlatalib/go-air-dev:latest
     container_name: \${APP_NAME}_app
     env_file: .env
     volumes:
-      # 1. Mount Source Code
       - .:/app
-      # 2. Mount Go Cache
       - go_data:/go/pkg
       - go_build_cache:/root/.cache/go-build
     environment:

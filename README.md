@@ -3,7 +3,6 @@
 Shortcut to run the project. Below is the configuration used in `go`:
 
 ```shell
-
 #!/bin/bash
 
 # --- BAGIAN 1: FITUR CREATE PROJECT ---
@@ -24,7 +23,7 @@ if [ "$1" = "create" ]; then
     echo "🚀 Starting project creation: $PROJECT_NAME..."
     mkdir -p "$PROJECT_NAME"
 
-    cp "$0" "$PROJECT_NAME/go"
+    # cp "$0" "$PROJECT_NAME/go"
     cd "$PROJECT_NAME" || exit
 
     # 1. Generate .env
@@ -79,7 +78,6 @@ services:
     environment:
       - PORT=\${APP_PORT}
     networks:
-      - default
       - proxy
     labels:
       - "traefik.enable=true"
@@ -172,7 +170,7 @@ if [ "$1" = "sdk" ]; then
     
     # Ambil Base Image dari variable atau parse dari Dockerfile jika ada
     # Fallback ke image default kita jika tidak terdeteksi
-    IMAGE_TO_PULL="ghcr.io/USERNAME/go-air-dev:latest" # GANTI DENGAN IMAGE ANDA
+    IMAGE_TO_PULL="ghcr.io/dowlatalib/go-air-dev:latest" # GANTI DENGAN IMAGE ANDA
     
     # Cek apakah di folder project ada Dockerfile dan gunakan FROM-nya jika mungkin
     if [ -f "Dockerfile" ]; then
@@ -211,5 +209,4 @@ if [ "$1" = "migrate" ]; then
 fi
 
 execute go "$@"
-
 ```

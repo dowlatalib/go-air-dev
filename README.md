@@ -162,7 +162,7 @@ compose() { docker compose "$@"; }
 
 execute() {
     # Cek apakah container jalan
-    if [ -z "$(docker-compose ps -q $APP_SERVICE 2>/dev/null)" ]; then
+    if [ -z "$(docker compose ps -q $APP_SERVICE 2>/dev/null)" ]; then
         echo "🔄 Container belum jalan. Menjalankan 'up -d'..."
         # Kita nyalakan container (pastikan compose.yml sudah terkonfigurasi user-nya dengan benar)
         docker compose up -d

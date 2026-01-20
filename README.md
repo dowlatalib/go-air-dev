@@ -25,14 +25,13 @@ if [ "$1" = "create" ]; then
     echo "🚀 Memulai pembuatan project: $PROJECT_NAME..."
     mkdir -p "$PROJECT_NAME"
     
-    cp "$0" "$PROJECT_NAME/go"
     cd "$PROJECT_NAME" || exit
 
     # [UPDATE] Ambil UID dan GID host saat ini
     CURRENT_UID=$(id -u)
     CURRENT_GID=$(id -g)
 
-    # 1. Generate .env (Menyimpan UID/GID)
+    # Generate .env (Menyimpan UID/GID)
     cat <<EOF > .env
 APP_NAME=${PROJECT_NAME}
 APP_DOMAIN=${PROJECT_NAME}.localhost
@@ -44,15 +43,7 @@ APP_GID=${CURRENT_GID}
 DB_URL=postgres://user:pass@db:5432/${PROJECT_NAME}?sslmode=disable
 EOF
 
-    # 2. Generate Dockerfile
-    cat <<EOF > Dockerfile
-FROM ${BASE_IMAGE}
-WORKDIR /app
-EXPOSE 8080
-CMD ["air", "-c", ".air.toml"]
-EOF
-
-    # 3. Generate .air.toml
+    # Generate .air.toml
     cat <<EOF > .air.toml
 root = "."
 tmp_dir = "tmp"
@@ -70,7 +61,7 @@ tmp_dir = "tmp"
   clean_on_exit = true
 EOF
 
-    # 4. Generate .gitignore
+    # Generate .gitignore
     cat <<EOF > .gitignore
 # Binaries
 /tmp
@@ -88,11 +79,9 @@ EOF
 
     # 5. Generate docker-compose.yml (MENGGUNAKAN USER DARI ENV)
     cat <<EOF > docker-compose.yml
-version: '3.8'
-
 services:
   app:
-    build: .
+    image: ghcr.io/dowlatalib/go-air-dev:latest
     container_name: \${APP_NAME}_app
     env_file: .env
     
@@ -112,7 +101,7 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-	  - "traefik.docker.network=proxy"
+      - "traefik.docker.network=proxy"
       - "traefik.http.routers.${PROJECT_NAME}.rule=Host(\`\${APP_DOMAIN}\`)"
       - "traefik.http.routers.${PROJECT_NAME}.entrypoints=web"
       - "traefik.http.services.${PROJECT_NAME}.loadbalancer.server.port=\${APP_PORT}"

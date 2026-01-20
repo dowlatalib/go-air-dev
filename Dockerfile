@@ -1,15 +1,21 @@
-# Ubah versi di sini
+# Gunakan versi terbaru
 FROM golang:1.25-alpine
 
+# Install dependencies
 RUN apk add --no-cache git curl build-base
 
 WORKDIR /app
 
-# Install Air
+# 1. Install Air
 RUN curl -sSfL https://raw.githubusercontent.com/air-verse/air/master/install.sh | sh -s -- -b /go/bin
 
-# Install Migrate (Sekarang Anda BISA menggunakan @latest lagi karena Go 1.25 support library terbaru)
+# 2. Install Migrate
 RUN go install -tags 'postgres,mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+# 3. [BARU] Fix Permission untuk Multi-User
+# Kita ubah folder /go agar bisa ditulis oleh user ID berapapun (chmod 777).
+# Ini aman untuk dev environment dan krusial agar user host bisa download library.
+RUN mkdir -p /go/pkg && chmod -R 777 /go
 
 EXPOSE 8080
 

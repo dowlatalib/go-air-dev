@@ -203,6 +203,13 @@ if [ "$1" = "sdk" ]; then
     exit 0
 fi
 
+# 5. MIGRATE WRAPPER (Baru!)
+# Jika perintah diawali 'migrate', jalankan binary migrate langsung, bukan 'go migrate'
+if [ "$1" = "migrate" ]; then
+    execute "$@"
+    exit $?
+fi
+
 execute go "$@"
 
 ```

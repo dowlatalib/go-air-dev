@@ -125,7 +125,7 @@ EOF
 
     # 6. Inisiasi Go Module
     echo "📦 Initialize Go Module..."
-    docker run --rm -v "$(pwd):/app" -w /app golang:1.23-alpine go mod init "$PROJECT_NAME"
+    docker run --rm -v "$(pwd):/app" -w /app golang:1.25-alpine go mod init "$PROJECT_NAME"
 
     echo "✅ Project '$PROJECT_NAME' created!"
     echo "📂 Go to directory: cd $PROJECT_NAME"
